@@ -1,0 +1,19 @@
+# 绝对不要把任何人的聊天数据提交上来
+wechat_db/
+out/
+*.sqlite
+*.sqlite-*
+*.jsonl
+*.db
+Backup/
+MobileSync/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# 系统
+.DS_Store

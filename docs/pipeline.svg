@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 300" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif">
+  <rect width="980" height="300" fill="#ffffff"/>
+  <text x="40" y="52" font-size="26" font-weight="700" fill="#1a1a1a">微信聊天记录导出 · 三步</text>
+  <text x="40" y="80" font-size="15" fill="#8a8a8a">iPhone 加密备份 → 解密数据库 → 选联系人 → 导成可读文本（全程本地）</text>
+
+  <!-- node 1 -->
+  <rect x="40" y="120" width="180" height="96" rx="10" fill="#f6f6f6" stroke="#1a1a1a" stroke-width="2"/>
+  <text x="130" y="162" font-size="17" font-weight="600" fill="#1a1a1a" text-anchor="middle">iPhone</text>
+  <text x="130" y="186" font-size="14" fill="#5a5a5a" text-anchor="middle">加密本地备份</text>
+
+  <!-- arrow 1 -->
+  <line x1="224" y1="168" x2="286" y2="168" stroke="#c0392b" stroke-width="2.5"/>
+  <polygon points="286,168 276,163 276,173" fill="#c0392b"/>
+  <text x="255" y="156" font-size="13" font-weight="700" fill="#c0392b" text-anchor="middle">extract</text>
+
+  <!-- node 2 -->
+  <rect x="290" y="120" width="180" height="96" rx="10" fill="#f6f6f6" stroke="#1a1a1a" stroke-width="2"/>
+  <text x="380" y="162" font-size="17" font-weight="600" fill="#1a1a1a" text-anchor="middle">wechat_db/</text>
+  <text x="380" y="186" font-size="14" fill="#5a5a5a" text-anchor="middle">解密出的数据库</text>
+
+  <!-- arrow 2 -->
+  <line x1="474" y1="168" x2="536" y2="168" stroke="#c0392b" stroke-width="2.5"/>
+  <polygon points="536,168 526,163 526,173" fill="#c0392b"/>
+  <text x="505" y="156" font-size="13" font-weight="700" fill="#c0392b" text-anchor="middle">list</text>
+
+  <!-- node 3 -->
+  <rect x="540" y="120" width="180" height="96" rx="10" fill="#f6f6f6" stroke="#1a1a1a" stroke-width="2"/>
+  <text x="630" y="162" font-size="17" font-weight="600" fill="#1a1a1a" text-anchor="middle">选联系人</text>
+  <text x="630" y="186" font-size="14" fill="#5a5a5a" text-anchor="middle">按消息数排序</text>
+
+  <!-- arrow 3 -->
+  <line x1="724" y1="168" x2="786" y2="168" stroke="#c0392b" stroke-width="2.5"/>
+  <polygon points="786,168 776,163 776,173" fill="#c0392b"/>
+  <text x="755" y="156" font-size="13" font-weight="700" fill="#c0392b" text-anchor="middle">export</text>
+
+  <!-- node 4 -->
+  <rect x="790" y="120" width="150" height="96" rx="10" fill="#1a1a1a"/>
+  <text x="865" y="162" font-size="17" font-weight="600" fill="#ffffff" text-anchor="middle">可读记录</text>
+  <text x="865" y="186" font-size="13" fill="#c9c9c9" text-anchor="middle">.txt / .jsonl</text>
+
+  <text x="40" y="268" font-size="13" fill="#a0a0a0">只处理你自己设备、你自己账号的数据 · 备份密码只在本机解密 · 不联网不外传</text>
+</svg>

@@ -1,0 +1,2 @@
+# 核心：解密 iPhone 加密备份（内部会装 pycryptodome）
+iphone_backup_decrypt==0.9.0
