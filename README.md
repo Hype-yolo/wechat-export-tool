@@ -46,8 +46,9 @@ pip install -r requirements.txt
 
 ### 第 0 步（前提）：给 iPhone 做一次加密备份
 
-<!-- 截图占位：把「访达 → iPhone → 通用 → 勾上『加密本地备份』」那一屏截图放到 docs/backup.png -->
+<!-- 截图待补：把「访达 → iPhone → 通用 → 勾上『加密本地备份』」那一屏保存为 docs/backup.png，再取消下面这行注释
 <p align="center"><img src="docs/backup.png" width="620" alt="访达里给 iPhone 做加密本地备份"></p>
+-->
 
 1. 数据线把 iPhone 插到电脑，打开 **访达（Finder）**，左侧点你的 iPhone（第一次要在手机上点「信任」）。
 2. 在「通用」页选 **「将 iPhone 上的所有数据备份到这台 Mac」**。
@@ -79,8 +80,9 @@ python wechat_export.py extract --password 你的备份加密密码
 python wechat_export.py list
 ```
 
-<!-- 截图占位：把 list 命令在终端里的输出截图放到 docs/list.png -->
+<!-- 截图待补：把 list 命令在终端里的输出（名字打码）保存为 docs/list.png，再取消下面这行注释
 <p align="center"><img src="docs/list.png" width="620" alt="list 命令列出联系人和消息条数"></p>
+-->
 
 ```
 账号：a1b2c3...    联系人/会话共 683 个
