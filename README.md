@@ -80,9 +80,7 @@ python wechat_export.py extract --password 你的备份加密密码
 python wechat_export.py list
 ```
 
-<!-- 截图待补：把 list 命令在终端里的输出（名字打码）保存为 docs/list.png，再取消下面这行注释
 <p align="center"><img src="docs/list.png" width="620" alt="list 命令列出联系人和消息条数"></p>
--->
 
 ```
 账号：a1b2c3...    联系人/会话共 683 个
