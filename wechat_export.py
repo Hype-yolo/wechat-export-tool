@@ -271,12 +271,34 @@ def cmd_list(args):
 # ----------------------------------------------------------------------------
 # 消息类型 → 可读文本
 # ----------------------------------------------------------------------------
+try:  # Python 3.14+ 标准库自带 zstd；更老的版本装 zstandard 包（见 requirements.txt）
+    from compression.zstd import decompress as _zstd_decompress
+except ImportError:
+    try:
+        import zstandard as _zstd
+
+        def _zstd_decompress(b):
+            return _zstd.ZstdDecompressor().decompressobj().decompress(b)
+    except ImportError:
+        _zstd_decompress = None
+
+
 def _txt(v):
     """SQLite 有时把 Message 当 BLOB 返回 bytes，统一转成 str。"""
     if v is None:
         return ""
     if isinstance(v, (bytes, bytearray)):
-        return bytes(v).decode("utf-8", "ignore")
+        b = bytes(v)
+        if b[:4] == b"\x28\xb5\x2f\xfd":  # 新版微信把部分长消息 zstd 压缩后存库
+            # 多数是 iOS 微信用私有字典压缩的（frame 里带 dictionary_id），
+            # 字典没在备份里，标准 zstd 解不开——尽力解，解不开就给占位而不是吐乱码。
+            if _zstd_decompress is not None:
+                try:
+                    return _zstd_decompress(b).decode("utf-8", "ignore")
+                except Exception:
+                    pass
+            return "[未解码的长消息]"
+        return b.decode("utf-8", "ignore")
     return v
 
 
