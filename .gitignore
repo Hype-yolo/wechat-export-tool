@@ -15,5 +15,8 @@ __pycache__/
 venv/
 .env
 
+# 图形版：.app 由「安装环境.command」从 launcher.applescript 现场编译，不进仓库
+gui/微信导出.app/
+
 # 系统
 .DS_Store

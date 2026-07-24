@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>微信聊天记录导出</title>
+<style>
+  :root{
+    --bg:#0e1013; --card:#16191f; --card2:#1c2029; --line:#272c36;
+    --tx:#e7e9ec; --mut:#8b929e; --dim:#5f6672;
+    --ac:#07c160; --ac-d:#0a3d24; --ac-t:#3ee08a;
+    --danger:#ff6b6b; --r:12px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--tx);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.6;
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:36px 20px;
+  }
+  .app{width:100%; max-width:560px}
+  .brand{display:flex; align-items:center; gap:9px; margin-bottom:22px; color:var(--mut); font-size:13px}
+  .brand .dot{width:9px; height:9px; border-radius:50%; background:var(--ac)}
+
+  .steps{display:flex; align-items:center; margin-bottom:26px}
+  .steps .s{display:flex; align-items:center; gap:8px; color:var(--dim); font-size:13px}
+  .steps .s .n{width:24px; height:24px; border-radius:50%; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-size:12.5px; flex:0 0 auto}
+  .steps .s.active{color:var(--tx)}
+  .steps .s.active .n{background:var(--ac); border-color:var(--ac); color:#04140b; font-weight:600}
+  .steps .s.done{color:var(--mut)}
+  .steps .s.done .n{background:var(--ac-d); border-color:var(--ac-d); color:var(--ac-t)}
+  .steps .bar{flex:1; height:1px; background:var(--line); margin:0 8px}
+  .steps .bar.on{background:var(--ac-d)}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:26px 24px}
+  h1{font-size:19px; font-weight:600; margin-bottom:6px; letter-spacing:.2px}
+  .sub{color:var(--mut); font-size:14px; margin-bottom:20px}
+  .page{display:none} .page.on{display:block}
+
+  ol.guide{list-style:none; counter-reset:g}
+  ol.guide li{counter-increment:g; position:relative; padding:11px 0 11px 40px; border-bottom:1px solid var(--line); font-size:14.5px}
+  ol.guide li:last-child{border-bottom:0}
+  ol.guide li::before{content:counter(g); position:absolute; left:0; top:11px; width:26px; height:26px;
+    border-radius:50%; background:var(--card2); color:var(--ac-t); font-size:13px; font-weight:600;
+    display:flex; align-items:center; justify-content:center}
+  ol.guide li b{color:var(--tx); font-weight:600}
+  ol.guide .hint{color:var(--mut); font-size:13px; margin-top:2px}
+
+  label.fld{display:block; font-size:13px; color:var(--mut); margin:0 0 7px}
+  input[type=password],input[type=text]{width:100%; height:44px; background:var(--card2);
+    border:1px solid var(--line); border-radius:var(--r); color:var(--tx); font-size:15px; padding:0 14px; outline:none}
+  input:focus{border-color:var(--ac)}
+  .rowlink{margin-top:12px; font-size:13px; color:var(--dim); cursor:pointer; user-select:none}
+  .rowlink:hover{color:var(--mut)}
+  .adv{margin-top:12px; display:none} .adv.on{display:block}
+
+  .search{position:relative; margin-bottom:12px}
+  .search input{padding-left:38px; height:42px}
+  .search .ic{position:absolute; left:13px; top:11px; color:var(--dim); font-size:16px}
+  .tools{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; font-size:13px; color:var(--mut)}
+  .tools a{color:var(--ac-t); cursor:pointer}
+  .list{max-height:326px; overflow:auto; border:1px solid var(--line); border-radius:var(--r)}
+  .list::-webkit-scrollbar{width:8px} .list::-webkit-scrollbar-thumb{background:var(--line); border-radius:8px}
+  .ct{display:flex; align-items:center; gap:12px; padding:10px 13px; cursor:pointer; border-bottom:1px solid var(--line)}
+  .ct:last-child{border-bottom:0}
+  .ct:hover{background:var(--card2)}
+  .ct .box{width:19px; height:19px; flex:0 0 auto; border-radius:5px; border:1px solid var(--dim);
+    display:flex; align-items:center; justify-content:center; font-size:12px; color:#04140b}
+  .ct.sel .box{background:var(--ac); border-color:var(--ac)}
+  .ct .box svg{display:none} .ct.sel .box svg{display:block}
+  .ct .av{width:34px; height:34px; flex:0 0 auto; border-radius:50%; background:var(--card2);
+    display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--mut)}
+  .ct .meta{flex:1; min-width:0}
+  .ct .nm{font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .ct .wx{font-size:12px; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .ct .cnt{font-size:12.5px; color:var(--mut); font-variant-numeric:tabular-nums; flex:0 0 auto}
+  .fmt{display:flex; gap:10px; margin:16px 0 4px}
+  .fmt .opt{flex:1; border:1px solid var(--line); border-radius:var(--r); padding:11px 14px; cursor:pointer}
+  .fmt .opt.on{border-color:var(--ac); background:var(--ac-d)}
+  .fmt .opt .t{font-size:14px} .fmt .opt .d{font-size:12px; color:var(--mut); margin-top:2px}
+
+  .foot{display:flex; align-items:center; justify-content:space-between; margin-top:22px}
+  .foot .info{font-size:13px; color:var(--mut)}
+  .foot .info b{color:var(--ac-t); font-weight:600}
+  button.go{background:var(--ac); color:#04140b; border:0; border-radius:var(--r); font-size:14.5px; font-weight:600;
+    padding:11px 22px; cursor:pointer; display:inline-flex; align-items:center; gap:7px}
+  button.go:hover{filter:brightness(1.08)} button.go:active{transform:scale(.98)}
+  button.go[disabled]{background:var(--card2); color:var(--dim); cursor:default; transform:none; filter:none}
+  button.ghost{background:transparent; color:var(--mut); border:1px solid var(--line); border-radius:var(--r);
+    padding:11px 18px; font-size:14px; cursor:pointer}
+  button.ghost:hover{color:var(--tx); border-color:var(--dim)}
+
+  .msg{margin-top:14px; font-size:13.5px; min-height:20px}
+  .msg.err{color:var(--danger)} .msg.ok{color:var(--ac-t)}
+  .spin{display:inline-block; width:15px; height:15px; border:2px solid #04140b; border-top-color:transparent;
+    border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .busy{text-align:center; padding:14px 0; color:var(--mut); font-size:14px}
+  .busy .spin{border-color:var(--ac); border-top-color:transparent; width:22px; height:22px; margin-bottom:10px; display:block; margin-left:auto; margin-right:auto}
+
+  .done-ic{width:56px; height:56px; border-radius:50%; background:var(--ac-d); color:var(--ac-t);
+    display:flex; align-items:center; justify-content:center; margin:6px auto 16px; font-size:30px}
+  .filelist{background:var(--card2); border-radius:var(--r); padding:6px 0; margin:14px 0; max-height:200px; overflow:auto}
+  .filelist .f{display:flex; align-items:center; gap:9px; padding:7px 16px; font-size:13.5px}
+  .filelist .f .fi{color:var(--ac-t); font-size:15px}
+  .privacy{margin-top:18px; font-size:12px; color:var(--dim); text-align:center; line-height:1.7}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="brand"><span class="dot"></span>微信聊天记录导出 · 本地运行，数据不出这台电脑</div>
+
+  <div class="steps" id="steps">
+    <div class="s" data-s="1"><span class="n">1</span>备份</div>
+    <div class="bar"></div>
+    <div class="s" data-s="2"><span class="n">2</span>解密</div>
+    <div class="bar"></div>
+    <div class="s" data-s="3"><span class="n">3</span>选联系人</div>
+    <div class="bar"></div>
+    <div class="s" data-s="4"><span class="n">4</span>导出</div>
+  </div>
+
+  <div class="card">
+    <!-- 步骤 1 -->
+    <div class="page" id="p1">
+      <h1>先给 iPhone 做一次加密备份</h1>
+      <p class="sub">聊天记录躺在这份备份里。做好之后再点下一步。</p>
+      <ol class="guide">
+        <li><b>用数据线把 iPhone 连上这台 Mac</b><div class="hint">解锁手机，弹「信任此电脑」点信任</div></li>
+        <li><b>打开访达，左边栏点你的 iPhone</b></li>
+        <li><b>勾上「加密本地备份」，设一个密码</b><div class="hint">这个密码后面解密要用，记牢；设过就用旧的</div></li>
+        <li><b>点「立即备份」，等它跑完</b><div class="hint">整机备份较慢，中途别锁屏别拔线</div></li>
+      </ol>
+      <div class="foot">
+        <span class="info">已经备份过？可以直接下一步</span>
+        <button class="go" onclick="go(2)">我备份好了 →</button>
+      </div>
+    </div>
+
+    <!-- 步骤 2 -->
+    <div class="page" id="p2">
+      <h1>输入备份密码，解出聊天记录</h1>
+      <p class="sub">就是刚才「加密本地备份」设的那个密码。只在这台电脑上用于解密，不联网、不保存。</p>
+      <div id="p2form">
+        <label class="fld">备份加密密码</label>
+        <input type="password" id="pw" placeholder="输入密码" autocomplete="off" onkeydown="if(event.key==='Enter')decrypt()">
+        <div class="rowlink" onclick="toggleAdv()">备份不在默认位置？手动指定路径</div>
+        <div class="adv" id="adv">
+          <label class="fld" style="margin-top:4px">备份目录路径（可留空自动找最新）</label>
+          <input type="text" id="bdir" placeholder="/Users/你/Library/.../Backup/xxxxxx">
+        </div>
+        <div class="foot">
+          <button class="ghost" onclick="go(1)">← 上一步</button>
+          <button class="go" id="decBtn" onclick="decrypt()">开始解密</button>
+        </div>
+        <div class="msg" id="p2msg"></div>
+      </div>
+      <div class="busy" id="p2busy" style="display:none">
+        <span class="spin"></span>
+        正在解密，可能要几分钟，别关窗口…
+      </div>
+    </div>
+
+    <!-- 步骤 3 -->
+    <div class="page" id="p3">
+      <h1>挑要导出的人</h1>
+      <p class="sub">按聊天条数从多到少排。勾上你想留档的，可多选。</p>
+      <div class="search">
+        <span class="ic">⌕</span>
+        <input type="text" id="q" placeholder="搜名字…" oninput="renderList()">
+      </div>
+      <div class="tools">
+        <span id="selInfo">已选 0 人</span>
+        <span><a onclick="selVisible()">全选当前</a> · <a onclick="clearSel()">清空</a></span>
+      </div>
+      <div class="list" id="list"></div>
+      <div class="fmt">
+        <div class="opt on" data-f="txt" onclick="pickFmt('txt')">
+          <div class="t">txt（推荐）</div><div class="d">一行一条，人直接能读</div>
+        </div>
+        <div class="opt" data-f="jsonl" onclick="pickFmt('jsonl')">
+          <div class="t">jsonl</div><div class="d">给程序用的结构化格式</div>
+        </div>
+      </div>
+      <div class="foot">
+        <span class="info">已选 <b id="selN">0</b> 人 · <span id="selC">0</span> 条</span>
+        <button class="go" id="expBtn" onclick="doExport()" disabled>导出</button>
+      </div>
+      <div class="msg" id="p3msg"></div>
+    </div>
+
+    <!-- 步骤 4 -->
+    <div class="page" id="p4">
+      <div class="done-ic">✓</div>
+      <h1 style="text-align:center">导出完成</h1>
+      <p class="sub" style="text-align:center" id="p4sub"></p>
+      <div class="filelist" id="p4files"></div>
+      <div class="foot" style="justify-content:center; gap:12px">
+        <button class="ghost" onclick="go(3)">← 再导别人</button>
+        <button class="go" onclick="openFolder()">打开文件夹</button>
+      </div>
+      <div class="privacy">全程在你电脑本地完成，备份密码没有被保存，也没有任何数据上传。</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+let cur = 1;
+let contacts = [];
+let sel = new Set();
+let fmt = 'txt';
+
+function go(n){
+  cur = n;
+  for(let i=1;i<=4;i++) document.getElementById('p'+i).classList.toggle('on', i===n);
+  const ss = document.querySelectorAll('#steps .s');
+  const bars = document.querySelectorAll('#steps .bar');
+  ss.forEach(s=>{const k=+s.dataset.s; s.classList.toggle('active',k===n); s.classList.toggle('done',k<n)});
+  bars.forEach((b,i)=>b.classList.toggle('on', i<n-1));
+  if(n===3 && contacts.length===0) loadContacts();
+}
+
+function toggleAdv(){ document.getElementById('adv').classList.toggle('on'); }
+
+async function decrypt(){
+  const pw = document.getElementById('pw').value.trim();
+  const msg = document.getElementById('p2msg');
+  msg.className='msg'; msg.textContent='';
+  if(!pw){ msg.className='msg err'; msg.textContent='先输密码'; return; }
+  document.getElementById('p2form').style.display='none';
+  document.getElementById('p2busy').style.display='block';
+  try{
+    const r = await fetch(API+'/api/decrypt',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({password:pw, backup_dir:document.getElementById('bdir').value.trim()})});
+    const d = await r.json();
+    document.getElementById('p2busy').style.display='none';
+    document.getElementById('p2form').style.display='block';
+    if(d.ok){ contacts=[]; go(3); }
+    else{ msg.className='msg err'; msg.textContent = clean(d.error) || '解密失败，多半是密码不对'; }
+  }catch(e){
+    document.getElementById('p2busy').style.display='none';
+    document.getElementById('p2form').style.display='block';
+    msg.className='msg err'; msg.textContent='出错了：'+e;
+  }
+}
+function clean(s){ return (s||'').replace(/^✗\s*/,''); }
+
+async function loadContacts(){
+  const list = document.getElementById('list');
+  list.innerHTML = '<div class="busy"><span class="spin"></span>读取联系人…</div>';
+  try{
+    const r = await fetch(API+'/api/contacts'); const d = await r.json();
+    if(!d.ok){ list.innerHTML = '<div class="busy" style="color:var(--danger)">'+clean(d.error)+'</div>'; return; }
+    contacts = d.contacts; renderList();
+  }catch(e){ list.innerHTML='<div class="busy" style="color:var(--danger)">出错：'+e+'</div>'; }
+}
+
+function initials(name){ return (name||'?').trim().charAt(0) || '?'; }
+function fmtNum(n){ return n.toLocaleString('en-US'); }
+
+function renderList(){
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const list = document.getElementById('list');
+  const rows = contacts.filter(c => !q || c.name.toLowerCase().includes(q) || c.wxid.toLowerCase().includes(q));
+  if(rows.length===0){ list.innerHTML='<div class="busy">没找到</div>'; return; }
+  const check = '<svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#04140b" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  list.innerHTML = rows.map(c=>`
+    <div class="ct ${sel.has(c.wxid)?'sel':''}" onclick="toggle('${c.wxid}')">
+      <span class="box">${check}</span>
+      <span class="av">${escapeHtml(initials(c.name))}</span>
+      <span class="meta">
+        <div class="nm">${escapeHtml(c.name)}${c.is_group?' <span style="color:var(--dim);font-size:12px">· 群聊</span>':''}</div>
+        <div class="wx">${escapeHtml(c.wxid)}</div>
+      </span>
+      <span class="cnt">${fmtNum(c.count)} 条</span>
+    </div>`).join('');
+  updateSel();
+}
+function escapeHtml(s){ return (s+'').replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+function toggle(w){ sel.has(w)?sel.delete(w):sel.add(w); renderList(); }
+function selVisible(){
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  contacts.filter(c=>!q||c.name.toLowerCase().includes(q)||c.wxid.toLowerCase().includes(q)).forEach(c=>sel.add(c.wxid));
+  renderList();
+}
+function clearSel(){ sel.clear(); renderList(); }
+function updateSel(){
+  const chosen = contacts.filter(c=>sel.has(c.wxid));
+  const total = chosen.reduce((a,c)=>a+c.count,0);
+  document.getElementById('selInfo').textContent = '已选 '+chosen.length+' 人';
+  document.getElementById('selN').textContent = chosen.length;
+  document.getElementById('selC').textContent = fmtNum(total);
+  document.getElementById('expBtn').disabled = chosen.length===0;
+}
+function pickFmt(f){ fmt=f; document.querySelectorAll('.fmt .opt').forEach(o=>o.classList.toggle('on',o.dataset.f===f)); }
+
+async function doExport(){
+  const btn = document.getElementById('expBtn');
+  const msg = document.getElementById('p3msg');
+  msg.className='msg'; msg.textContent='';
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> 导出中…';
+  try{
+    const r = await fetch(API+'/api/export',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wxids:[...sel], format:fmt})});
+    const d = await r.json();
+    btn.innerHTML='导出'; updateSel();
+    if(!d.ok){ msg.className='msg err'; msg.textContent=clean(d.error); return; }
+    showDone(d);
+  }catch(e){ btn.innerHTML='导出'; btn.disabled=false; msg.className='msg err'; msg.textContent='出错：'+e; }
+}
+
+function showDone(d){
+  document.getElementById('p4sub').textContent = '共 '+d.done.length+' 个文件，已存到桌面「微信聊天记录导出」';
+  document.getElementById('p4files').innerHTML = d.done.map(f=>
+    `<div class="f"><span class="fi">▤</span>${escapeHtml(f.file)}</div>`).join('')
+    + (d.skipped.length?`<div class="f" style="color:var(--dim)">跳过 ${d.skipped.length} 个（无聊天表）</div>`:'');
+  go(4);
+}
+async function openFolder(){ await fetch(API+'/api/open-folder',{method:'POST'}); }
+
+(async function init(){
+  try{ const r=await fetch(API+'/api/state'); const d=await r.json();
+    go(d.decrypted ? 3 : 1);
+  }catch(e){ go(1); }
+})();
+</script>
+</body>
+</html>
